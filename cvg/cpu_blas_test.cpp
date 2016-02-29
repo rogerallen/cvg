@@ -43,35 +43,4 @@ int main_cpu_test(int loops, int M, int N, int K)
 }
 
 
-//DGEMM way. The PREFERED way, especially for large matrices
-void Dgemm_multiply(double* a, double*  b, double*  c, int N)
-{
-
-}
-
-//initialize array with random data
-void init_arr(int N, double* a)
-{
-    int i, j;
-    for (i = 0; i< N; i++) {
-        for (j = 0; j<N; j++) {
-            a[i*N + j] = (i + j + 1) % 10; //keep all entries less than 10. pleasing to the eye!
-        }
-    }
-}
-
-//print array to std out
-void print_arr(int N, char * name, double* array)
-{
-    int i, j;
-    printf("\n%s\n", name);
-    for (i = 0; i<N; i++){
-        for (j = 0; j<N; j++) {
-            printf("%g\t", array[N*i + j]);
-        }
-        printf("\n");
-    }
-}
-
-
 
