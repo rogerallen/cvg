@@ -22,18 +22,7 @@ int main_cpu_test(int loops, int M, int N, int K)
     }
     stop = clock();
 
-    printf("Result:\n");
-    pr_array(c, M);
-
-    double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
-    double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    printf("SGEMM: [%dx%d] * [%dx%d] + [%dx%d]\n", M, K, K, N, M, N);
-    printf("seconds:     %f\n", timer_seconds);
-    printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
-    // the total number of floating point operations for a typical *GEMM call 
-    // is approximately 2MNK.
-    printf("Gigaflops:   %.1f\n", 2.0*M*N*K*loops / 1e9);
-    printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
+    summarize(c, loops, M, N, K, start, stop);
 
     delete_float_matrix(a);
     delete_float_matrix(b);

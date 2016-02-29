@@ -1,8 +1,9 @@
 #include <time.h>
 #include <stdio.h>
 #include <windows.h>
-#include "cuda_runtime.h"
+#include <cuda_runtime.h>
 #include <cublas_v2.h>
+#include <cublasXt.h>
 #include "gpu_blas_test.h"
 #include "util.h"
 
@@ -21,7 +22,7 @@ static void HandleCublasError(cublasStatus_t err, const char *file, int line, co
 {
     if (err != CUBLAS_STATUS_SUCCESS)
     {
-        printf("error %s %d in %s at line %d\n", str, err, // FIXME why no error code?
+        printf("error %s %d in %s at line %d\n", str, err, // why no cublasGetErrorString?
             file, line);
         exit(EXIT_FAILURE);
     }
@@ -46,7 +47,7 @@ void list_cuda_devices()
     }
 }
 
-int main_gpu_test(int loops, int M, int N, int K)
+int cublas_gpu_test(int loops, int M, int N, int K)
 {
     printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
     
@@ -73,24 +74,12 @@ int main_gpu_test(int loops, int M, int N, int K)
 
     float alpha = 1.11f, beta = 0.91f;
     for (int i = 0; i < loops; ++i) {
-        // FIXME this is column-major, CPU is row-major
         HANDLE_CUBLAS_ERROR(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, dev_a, M, dev_b, K, &beta, dev_c, M), "Sgemm fail");
     }
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
 
-    printf("Result:\n");
-    pr_array(c, M);
-
-    double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
-    double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    printf("SGEMM: [%dx%d] * [%dx%d] + [%dx%d]\n", M, K, K, N, M, N);
-    printf("seconds:     %f\n", timer_seconds);
-    printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
-    // the total number of floating point operations for a typical *GEMM call 
-    // is approximately 2MNK.
-    printf("Gigaflops:   %.1f\n", 2.0*M*N*K*loops / 1e9);
-    printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
+    summarize(c, loops, M, N, K, start, stop);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
@@ -101,6 +90,46 @@ int main_gpu_test(int loops, int M, int N, int K)
     cudaFree(dev_c);
 
     cublasDestroy(handle);
+
+    return 0;
+
+}
+
+int cublasxt_gpu_test(int loops, int M, int N, int K, int block_dim)
+{
+    printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
+
+    list_cuda_devices();
+
+    cublasXtHandle_t handle;
+    HANDLE_CUBLAS_ERROR(cublasXtCreate(&handle), "cublasXtCreate fail");
+    
+    // NOTE: adjust this for your particular GPU configuration.
+    int devices[1] = { 0 };
+    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, 1, devices), "cublasXtDeviceSelect fail");
+
+    HANDLE_CUBLAS_ERROR(cublasXtSetBlockDim(handle, block_dim), "cublasXtSetBlockDim fail");
+    
+    float *a, *b, *c;
+    new_float_matrix(a, M, K);
+    new_float_matrix(b, K, N);
+    new_float_matrix(c, M, N);
+
+    clock_t start, stop;
+    start = clock();
+    float alpha = 1.11f, beta = 0.91f;
+    for (int i = 0; i < loops; ++i) {
+        HANDLE_CUBLAS_ERROR(cublasXtSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, a, M, b, K, &beta, c, M), "Sgemm fail");
+    }
+    stop = clock();
+
+    summarize(c, loops, M, N, K, start, stop);
+
+    delete_float_matrix(a);
+    delete_float_matrix(b);
+    delete_float_matrix(c);
+
+    cublasXtDestroy(handle);
 
     return 0;
 
