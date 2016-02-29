@@ -1,9 +1,7 @@
-
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 #include <time.h>
 #include <stdio.h>
 #include <windows.h>
+#include "cuda_runtime.h"
 #include <cublas_v2.h>
 #include "gpu_blas_test.h"
 #include "util.h"
@@ -29,10 +27,31 @@ static void HandleCublasError(cublasStatus_t err, const char *file, int line, co
     }
 }
 
+void list_cuda_devices() 
+{
+    int nDevices;
+
+    cudaGetDeviceCount(&nDevices);
+    for (int i = 0; i < nDevices; i++) {
+        cudaDeviceProp prop;
+        cudaGetDeviceProperties(&prop, i);
+        printf("Device Number: %d\n", i);
+        printf("  Device name: %s\n", prop.name);
+        printf("  Memory Clock Rate (KHz): %d\n",
+            prop.memoryClockRate);
+        printf("  Memory Bus Width (bits): %d\n",
+            prop.memoryBusWidth);
+        printf("  Peak Memory Bandwidth (GB/s): %f\n\n",
+            2.0*prop.memoryClockRate*(prop.memoryBusWidth / 8) / 1.0e6);
+    }
+}
+
 int main_gpu_test(int loops, int M, int N, int K)
 {
-    printf("CUBLAS sgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
+    printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
     
+    list_cuda_devices();
+
     cublasHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasCreate(&handle),"cublasCreate fail");
 
@@ -60,11 +79,18 @@ int main_gpu_test(int loops, int M, int N, int K)
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
 
-    printf("sgemm_multiply(). Elapsed time = %g seconds\n",
-        ((double)(stop - start)) / CLOCKS_PER_SEC);
+    printf("Result:\n");
+    pr_array(c, M);
 
-    printf("C:\n");
-    pr_array(c, N);
+    double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
+    double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
+    printf("SGEMM: [%dx%d] * [%dx%d] + [%dx%d]\n", M, K, K, N, M, N);
+    printf("seconds:     %f\n", timer_seconds);
+    printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
+    // the total number of floating point operations for a typical *GEMM call 
+    // is approximately 2MNK.
+    printf("Gigaflops:   %.1f\n", 2.0*M*N*K*loops / 1e9);
+    printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
