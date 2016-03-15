@@ -12,7 +12,7 @@ Example usage & output:
 CPU SGEMM:
 ================================================================================
 
-> x64/Debug/cvg.exe c 4 6400 6400 26000
+> x64/Debug/cvg.exe -s c -l 4 -m 6400 -n 6400 -k 26000
 Intel MKL sgemm: loops=4 M=6400 N=6400 K=26000
 Result:
 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 ...[snip]...
@@ -34,7 +34,7 @@ Gigaflops/s: 354.5
 GPU CUBLAS SGEMM:
 ================================================================================
 
-> x64/Debug/cvg.exe g 4 6400 6400 26000
+> x64/Debug/cvg.exe -s g -l 4 -m 6400 -n 6400 -k 26000
 NVIDIA CUBLAS sgemm: loops=4 M=6400 N=6400 K=26000
 Device Number: 0
   Device name: GeForce GTX 960
@@ -62,7 +62,7 @@ Gigaflops/s: 1752.7
 GPU CUBLASXT SGEMM
 ================================================================================
 
-> x64/Debug/cvg.exe x 4 6400 6400 26000 8192
+> x64/Debug/cvg.exe -s x -l 4 -m 6400 -n 6400 -k 26000 -b 8192
 NVIDIA CUBLASXT sgemm: loops=4 M=6400 N=6400 K=26000 block_dim=8192
 Device Number: 0
   Device name: GeForce GTX 960
