@@ -50,7 +50,7 @@ void list_cuda_devices()
 
 int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta)
 {
-    printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
+    printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
     
     list_cuda_devices();
 
@@ -79,7 +79,7 @@ int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta)
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
 
-    summarize_sgemm(c, loops, M, N, K, start, stop);
+    summarize_sgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
@@ -97,7 +97,7 @@ int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta)
 
 int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta)
 {
-    printf("NVIDIA CUBLAS dgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
+    printf("NVIDIA CUBLAS dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
 
     list_cuda_devices();
 
@@ -126,7 +126,7 @@ int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta)
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
 
-    summarize_dgemm(c, loops, M, N, K, start, stop);
+    summarize_dgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_double_matrix(a);
     delete_double_matrix(b);
@@ -144,7 +144,7 @@ int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta)
 
 int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, int block_dim, int num_gpus, int *gpu_ids)
 {
-    printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
+    printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
 
     list_cuda_devices();
 
@@ -167,7 +167,7 @@ int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, 
     }
     stop = clock();
 
-    summarize_sgemm(c, loops, M, N, K, start, stop);
+    summarize_sgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
@@ -181,7 +181,7 @@ int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, 
 
 int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta, int block_dim, int num_gpus, int *gpu_ids)
 {
-    printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
+    printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
 
     list_cuda_devices();
 
@@ -204,7 +204,7 @@ int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta
     }
     stop = clock();
 
-    summarize_dgemm(c, loops, M, N, K, start, stop);
+    summarize_dgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_double_matrix(a);
     delete_double_matrix(b);
@@ -218,7 +218,7 @@ int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta
 
 int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
 {
-    printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
+    printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
     assert(K > N);
 
     list_cuda_devices();
@@ -252,7 +252,7 @@ int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
 
-    summarize_sgemm(c, loops, M, N, K, start, stop);
+    summarize_sgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
@@ -272,7 +272,7 @@ int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta
 
 int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
 {
-    printf("NVIDIA CUBLAS dgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
+    printf("NVIDIA CUBLAS dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
     assert(K > N);
 
     list_cuda_devices();
@@ -306,7 +306,7 @@ int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double be
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
 
-    summarize_dgemm(c, loops, M, N, K, start, stop);
+    summarize_dgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_double_matrix(a);
     delete_double_matrix(b);
@@ -326,7 +326,7 @@ int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double be
 
 int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta, int block_dim, int num_gpus, int *gpu_ids)
 {
-    printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
+    printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
     assert(K > N);
 
     list_cuda_devices();
@@ -352,7 +352,7 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
     }
     stop = clock();
 
-    summarize_sgemm(c, loops, M, N, K, start, stop);
+    summarize_sgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
@@ -367,7 +367,7 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
 
 int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta, int block_dim, int num_gpus, int *gpu_ids)
 {
-    printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
+    printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
     assert(K > N);
 
     list_cuda_devices();
@@ -393,7 +393,7 @@ int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double 
     }
     stop = clock();
 
-    summarize_dgemm(c, loops, M, N, K, start, stop);
+    summarize_dgemm(c, loops, M, N, K, alpha, beta, start, stop);
 
     delete_double_matrix(a);
     delete_double_matrix(b);

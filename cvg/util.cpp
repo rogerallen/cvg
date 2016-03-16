@@ -57,14 +57,14 @@ void pr_array(double *x, int ld)
     printf("...[snip]...\n");
 }
 
-void summarize_sgemm(float *c, int loops, int M, int N, int K, clock_t start, clock_t stop)
+void summarize_sgemm(float *c, int loops, int M, int N, int K, float alpha, float beta, clock_t start, clock_t stop)
 {
     printf("Result:\n");
     pr_array(c, M);
 
     double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    printf("SGEMM: [%dx%d] * [%dx%d] + [%dx%d]\n", M, K, K, N, M, N);
+    printf("SGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
     // the total number of floating point operations for a typical *GEMM call 
@@ -73,14 +73,14 @@ void summarize_sgemm(float *c, int loops, int M, int N, int K, clock_t start, cl
     printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
 }
 
-void summarize_dgemm(double *c, int loops, int M, int N, int K, clock_t start, clock_t stop)
+void summarize_dgemm(double *c, int loops, int M, int N, int K, double alpha, double beta, clock_t start, clock_t stop)
 {
     printf("Result:\n");
     pr_array(c, M);
 
     double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    printf("DGEMM: [%dx%d] * [%dx%d] + [%dx%d]\n", M, K, K, N, M, N);
+    printf("DGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
     // the total number of floating point operations for a typical *GEMM call 
@@ -89,7 +89,7 @@ void summarize_dgemm(double *c, int loops, int M, int N, int K, clock_t start, c
     printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
 }
 
-void summarize_ssyrkgemm(float *c, int loops, int M, int N, int K, clock_t start, clock_t stop)
+void summarize_ssyrkgemm(float *c, int loops, int M, int N, int K, float alpha, float beta, clock_t start, clock_t stop)
 {
     printf("Result:\n");
     pr_array(c, M);
@@ -97,7 +97,7 @@ void summarize_ssyrkgemm(float *c, int loops, int M, int N, int K, clock_t start
     double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
     //FIXMEprintf("DSYRK: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, M, alpha, M, M, beta);
-    printf("FIXME SSYRKGEMM: [%dx%d] * [%dx%d] + [%dx%d]\n", M, K, K, N, M, N);
+    printf("FIXME SSYRKGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
     // the total number of floating point operations for a typical *GEMM call 
@@ -106,7 +106,7 @@ void summarize_ssyrkgemm(float *c, int loops, int M, int N, int K, clock_t start
     printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
 }
 
-void summarize_dsyrkgemm(double *c, int loops, int M, int N, int K, clock_t start, clock_t stop)
+void summarize_dsyrkgemm(double *c, int loops, int M, int N, int K, double alpha, double beta, clock_t start, clock_t stop)
 {
     printf("Result:\n");
     pr_array(c, M);
@@ -114,7 +114,7 @@ void summarize_dsyrkgemm(double *c, int loops, int M, int N, int K, clock_t star
     double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
     //FIXMEprintf("DSYRK: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, M, alpha, M, M, beta);
-    printf("FIXME DSYRKGEMM: [%dx%d] * [%dx%d] + [%dx%d]\n", M, K, K, N, M, N);
+    printf("FIXME DSYRKGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
     // the total number of floating point operations for a typical *GEMM call 
