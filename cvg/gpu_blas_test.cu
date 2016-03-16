@@ -64,6 +64,7 @@ int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta)
 
     // time all the extra stuff for setting up the matrices
     clock_t start, stop;
+    clock_t start2, stop2;
     start = clock();
     float *dev_a, *dev_b, *dev_c;
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_a, M*K*sizeof(*a)));
@@ -73,13 +74,19 @@ int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta)
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(K, N, sizeof(*b), b, K, dev_b, K), "cublasSetMatrix B fail");
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(M, N, sizeof(*c), c, M, dev_c, M), "cublasSetMatrix C fail");
 
+    cudaDeviceSynchronize();
+    start2 = clock();
     for (int i = 0; i < loops; ++i) {
         HANDLE_CUBLAS_ERROR(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, dev_a, M, dev_b, K, &beta, dev_c, M), "Sgemm fail");
     }
+    cudaDeviceSynchronize();
+    stop2 = clock();
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
-
+    
     summarize_sgemm(c, loops, M, N, K, alpha, beta, start, stop);
+    printf("ON DEVICE TIME:");
+    summarize_sgemm(c, loops, M, N, K, alpha, beta, start2, stop2);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
@@ -111,6 +118,7 @@ int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta)
 
     // time all the extra stuff for setting up the matrices
     clock_t start, stop;
+    clock_t start2, stop2;
     start = clock();
     double *dev_a, *dev_b, *dev_c;
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_a, M*K*sizeof(*a)));
@@ -120,13 +128,19 @@ int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta)
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(K, N, sizeof(*b), b, K, dev_b, K), "cublasSetMatrix B fail");
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(M, N, sizeof(*c), c, M, dev_c, M), "cublasSetMatrix C fail");
 
+    cudaDeviceSynchronize();
+    start2 = clock();
     for (int i = 0; i < loops; ++i) {
         HANDLE_CUBLAS_ERROR(cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, dev_a, M, dev_b, K, &beta, dev_c, M), "Sgemm fail");
     }
+    cudaDeviceSynchronize();
+    stop2 = clock();
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
     stop = clock();
 
     summarize_dgemm(c, loops, M, N, K, alpha, beta, start, stop);
+    printf("ON DEVICE TIME:");
+    summarize_dgemm(c, loops, M, N, K, alpha, beta, start2, stop2);
 
     delete_double_matrix(a);
     delete_double_matrix(b);
