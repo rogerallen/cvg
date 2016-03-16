@@ -142,7 +142,7 @@ int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta)
 
 }
 
-int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, int block_dim)
+int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, int block_dim, int num_gpus, int *gpu_ids)
 {
     printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
 
@@ -151,9 +151,7 @@ int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, 
     cublasXtHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasXtCreate(&handle), "cublasXtCreate fail");
     
-    // NOTE: adjust this for your particular GPU configuration.
-    int devices[1] = { 0 };
-    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, 1, devices), "cublasXtDeviceSelect fail");
+    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, num_gpus, gpu_ids), "cublasXtDeviceSelect fail");
 
     HANDLE_CUBLAS_ERROR(cublasXtSetBlockDim(handle, block_dim), "cublasXtSetBlockDim fail");
     
@@ -181,7 +179,7 @@ int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, 
 
 }
 
-int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta, int block_dim)
+int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta, int block_dim, int num_gpus, int *gpu_ids)
 {
     printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
 
@@ -190,9 +188,7 @@ int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta
     cublasXtHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasXtCreate(&handle), "cublasXtCreate fail");
 
-    // NOTE: adjust this for your particular GPU configuration.
-    int devices[1] = { 0 };
-    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, 1, devices), "cublasXtDeviceSelect fail");
+    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, num_gpus, gpu_ids), "cublasXtDeviceSelect fail");
 
     HANDLE_CUBLAS_ERROR(cublasXtSetBlockDim(handle, block_dim), "cublasXtSetBlockDim fail");
 
@@ -328,7 +324,7 @@ int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double be
 
 }
 
-int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta, int block_dim)
+int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta, int block_dim, int num_gpus, int *gpu_ids)
 {
     printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
     assert(K > N);
@@ -338,9 +334,7 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
     cublasXtHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasXtCreate(&handle), "cublasXtCreate fail");
 
-    // NOTE: adjust this for your particular GPU configuration.
-    int devices[1] = { 0 };
-    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, 1, devices), "cublasXtDeviceSelect fail");
+    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, num_gpus, gpu_ids), "cublasXtDeviceSelect fail");
 
     HANDLE_CUBLAS_ERROR(cublasXtSetBlockDim(handle, block_dim), "cublasXtSetBlockDim fail");
 
@@ -371,7 +365,7 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
 
 }
 
-int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta, int block_dim)
+int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta, int block_dim, int num_gpus, int *gpu_ids)
 {
     printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d block_dim=%d\n", loops, M, N, K, block_dim);
     assert(K > N);
@@ -381,9 +375,7 @@ int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double 
     cublasXtHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasXtCreate(&handle), "cublasXtCreate fail");
 
-    // FIXME make parameterizable.  NOTE: adjust this for your particular GPU configuration.
-    int devices[1] = { 0 };
-    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, 1, devices), "cublasXtDeviceSelect fail");
+    HANDLE_CUBLAS_ERROR(cublasXtDeviceSelect(handle, num_gpus, gpu_ids), "cublasXtDeviceSelect fail");
 
     HANDLE_CUBLAS_ERROR(cublasXtSetBlockDim(handle, block_dim), "cublasXtSetBlockDim fail");
 

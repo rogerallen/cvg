@@ -1,12 +1,31 @@
 cvg - CPU vs. GPU SGEMM performance test
-by Roger Allen
+by Roger Allen & Rick Wirch
 Feb 29, 2016
 
-This is just a toy for developers.  
+This is just a toy perf app for developers.  
 
-I wanted a simple way to compare CPU vs. GPU SGEMM performance using Intel MKL, NVIDIA CUBLAS & CUBLAS-XT libraries.
+I wanted a simple way to compare CPU vs. GPU SGEMM performance using Intel MKL, NVIDIA CUBLAS & CUBLAS-XT libraries.  
+It started out simple, but like so many things, got a bit more complex over time...  Since this is for developers,
+please just read the code to see what it is doing.
+
+NOTE: built assuming Intel MKL V11.3
 
 Example usage & output:
+
+usage:
+ cvg <options>
+options:
+ -t g|s   : test type: GEMM, SYRK+GEMM (default GEMM)
+ -s c|g|x : API select: CPU (Intel MKL), GPU (CUBLAS), GPU (CUBLAS-XT)
+ -p s|d   : test precision: single (default) or double
+ -l #     : loops of the algorithm (default 1)
+ -m #     : matrix M dimension (default 1024)
+ -n #     : matrix N dimension (default 1024)
+ -k #     : matrix K dimension (default 2048)
+ -b #     : CUBLAS-XT block_dim (default 1024)
+ -A #     : alpha GEMM parameter (default 1.11)
+ -B #     : beta GEMM parameter (default 0.91)
+ -g #     : [CUBLAS-XT only] gpu id(s) to use. can specify multiple -g options. (default=0)
 
 ================================================================================
 CPU SGEMM:
