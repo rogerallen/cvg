@@ -14,28 +14,35 @@ void print_usage()
     cout << "usage:" << endl;
     cout << " cvg <options>" << endl;
     cout << "options:" << endl;
-    cout << " -s c|g|x : test select CPU (Intel MKL), GPU (CUBLAS), GPU (CUBLAS-XT)" << endl;
-    cout << " -p s|d   : test precision single (default) or double" << endl;
+    cout << " -t g|s   : test type: GEMM, SYRK+GEMM" << endl;
+    cout << " -s c|g|x : host select: CPU (Intel MKL), GPU (CUBLAS), GPU (CUBLAS-XT)" << endl;
+    cout << " -p s|d   : test precision: single (default) or double" << endl;
     cout << " -l #     : loops of the algorithm (default 1)" << endl;
     cout << " -m #     : matrix M dimension (default 1024)" << endl;
     cout << " -n #     : matrix N dimension (default 1024)" << endl;
     cout << " -k #     : matrix K dimension (default 2048)" << endl;
     cout << " -b #     : CUBLAS-XT block_dim (default 1024)" << endl;
+    cout << " -A #     : alpha GEMM parameter (default 1.11)" << endl;
+    cout << " -B #     : beta GEMM parameter (default 0.91)" << endl;
 }
 
 int main(int argc, char **argv) {
-    int ic = 1; // index argc
     int rc;
 
+    char test = 'g';
     char sel = 'g';
     char prec = 's';
     int loops = 1;
     int m = 1024, n = 1024, k = 2048;
     int block = 1024;
+    double alpha = 1.11, beta = 0.91;
 
     for (int i = 1; i < argc; ++i) {
         if (argv[i][0] == '-') {
             switch (argv[i][1]) {
+            case 't':
+                test = argv[++i][0];
+                break;
             case 's':
                 sel = argv[++i][0];
                 break;
@@ -57,6 +64,12 @@ int main(int argc, char **argv) {
             case 'b':
                 block = stoi(argv[++i]);
                 break;
+            case 'A':
+                alpha = stod(argv[++i]);
+                break;
+            case 'B':
+                beta = stod(argv[++i]);
+                break;
             default:
                 cerr << "ERROR: unknown option -" << argv[i][1] << endl;
                 print_usage();
@@ -68,20 +81,33 @@ int main(int argc, char **argv) {
             return(1);
         }
     }
-    switch (sel) {
-    case 'g':
-        rc = cublas_gpu_test(loops, m, n, k);
-        break;
-    case 'x':
-        rc = cublasxt_gpu_test(loops, m, n, k, block);
-        break;
-    case 'c':
-        rc = main_cpu_test(loops, m, n, k);
-        break;
-    default:
-        cerr << "unknown select: " << sel << endl;
-        rc = 1;
-        break;
+    if ((sel == 'c') && (test == 'g') && (prec == 's')) {
+        rc = cpu_sgemm(loops, m, n, k, (float)alpha, (float)beta);
+    } else if ((sel == 'c') && (test == 'g') && (prec == 'd')) {
+        rc = cpu_dgemm(loops, m, n, k, alpha, beta);
+    } else if ((sel == 'g') && (test == 'g') && (prec == 's')) {
+        rc = gpu_cublas_sgemm(loops, m, n, k, (float)alpha, (float)beta);
+    } else if ((sel == 'g') && (test == 'g') && (prec == 'd')) {
+        rc = gpu_cublas_dgemm(loops, m, n, k, alpha, beta);
+    } else if ((sel == 'x') && (test == 'g') && (prec == 's')) {
+        rc = gpu_cublasxt_sgemm(loops, m, n, k, (float)alpha, (float)beta, block);
+    } else if ((sel == 'x') && (test == 'g') && (prec == 'd')) {
+        rc = gpu_cublasxt_dgemm(loops, m, n, k, alpha, beta, block);
+    } else if ((sel == 'c') && (test == 's') && (prec == 's')) {
+        rc = cpu_ssyrkgemm(loops, m, n, k, (float)alpha, (float)beta);
+    } else if ((sel == 'c') && (test == 's') && (prec == 'd')) {
+        rc = cpu_dsyrkgemm(loops, m, n, k, alpha, beta);
+    } else if ((sel == 'g') && (test == 's') && (prec == 's')) {
+        rc = gpu_cublas_ssyrkgemm(loops, m, n, k, (float)alpha, (float)beta);
+    } else if ((sel == 'g') && (test == 's') && (prec == 'd')) {
+        rc = gpu_cublas_dsyrkgemm(loops, m, n, k, alpha, beta);
+    } else if ((sel == 'x') && (test == 's') && (prec == 's')) {
+        rc = gpu_cublasxt_ssyrkgemm(loops, m, n, k, (float)alpha, (float)beta, block);
+    } else if ((sel == 'x') && (test == 's') && (prec == 'd')) {
+        rc = gpu_cublasxt_dsyrkgemm(loops, m, n, k, alpha, beta, block);
+    } else {
+        cerr << "ERROR: no test selected." << endl;
+        rc = 3;
     }
     return rc;
 }
