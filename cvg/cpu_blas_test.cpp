@@ -3,12 +3,36 @@
 #include <time.h>
 #include <stdlib.h>
 #include <mkl.h>
+#include <windows.h>
+#pragma comment(lib, "user32.lib")
 #include "cpu_blas_test.h"
 #include "util.h"
+
+void list_cpu_info()
+{
+    SYSTEM_INFO siSysInfo;
+    GetSystemInfo(&siSysInfo);
+    printf("Hardware information: \n");
+    printf("  OEM ID:                %u\n", siSysInfo.dwOemId);
+    printf("  Number of processors:  %u\n", siSysInfo.dwNumberOfProcessors);
+    HKEY hKey;
+    DWORD dwMHz, BufSize;
+    long lError = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+        "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0",
+        0,
+        KEY_READ,
+        &hKey);
+    if (lError == ERROR_SUCCESS) {
+        RegQueryValueEx(hKey, "~MHz", NULL, NULL, (LPBYTE)&dwMHz, &BufSize);
+        printf("  CPU clock:             %d MHz\n", dwMHz);
+    }
+}
 
 int cpu_sgemm(int loops, int M, int N, int K, float alpha, float beta)
 {
     printf("Intel MKL sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n",loops,M,N,K,alpha,beta);
+
+    list_cpu_info();
 
     float *a, *b, *c;
     new_float_matrix(a, M, K);
@@ -35,6 +59,8 @@ int cpu_dgemm(int loops, int M, int N, int K, double alpha, double beta)
 {
     printf("Intel MKL dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
 
+    list_cpu_info();
+    
     double *a, *b, *c;
     new_double_matrix(a, M, K);
     new_double_matrix(b, K, N);
@@ -61,6 +87,8 @@ int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
     printf("Intel MKL ssyrkgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
     assert(M == N);
 
+    list_cpu_info();
+    
     float *a, *b, *c;
     new_float_matrix(a, M, K);
     new_float_matrix(b, K, N);
@@ -88,6 +116,8 @@ int cpu_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
     printf("Intel MKL dsyrkgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
     assert(M == N);
 
+    list_cpu_info();
+    
     double *a, *b, *c;
     new_double_matrix(a, M, K);
     new_double_matrix(b, K, N);
