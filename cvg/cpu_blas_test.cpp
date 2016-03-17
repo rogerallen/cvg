@@ -59,18 +59,17 @@ int cpu_dgemm(int loops, int M, int N, int K, double alpha, double beta)
 int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
 {
     printf("Intel MKL ssyrkgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
-    assert(K > N);
+    assert(M == N);
 
-    float *a, *b, *c, *d;
+    float *a, *b, *c;
     new_float_matrix(a, M, K);
     new_float_matrix(b, K, N);
     new_float_matrix(c, M, N);
-    new_float_matrix(d, K, K);
 
     clock_t start, stop;
     start = clock();
     for (int i = 0; i < loops; ++i) {
-        cblas_ssyrk(CblasColMajor, CblasLower, CblasNoTrans, K, N, alpha, a, K, beta, d, K);
+        cblas_ssyrk(CblasColMajor, CblasLower, CblasNoTrans, N, K, alpha, a, M, beta, c, N);
         cblas_sgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, M, N, K, alpha, a, M, b, K, beta, c, M);
     }
     stop = clock();
@@ -80,7 +79,6 @@ int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
     delete_float_matrix(a);
     delete_float_matrix(b);
     delete_float_matrix(c);
-    delete_float_matrix(d);
 
     return 0;
 }
@@ -88,18 +86,17 @@ int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
 int cpu_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
 {
     printf("Intel MKL dsyrkgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
-    assert(K > N);
+    assert(M == N);
 
-    double *a, *b, *c, *d;
+    double *a, *b, *c;
     new_double_matrix(a, M, K);
     new_double_matrix(b, K, N);
     new_double_matrix(c, M, N);
-    new_double_matrix(d, K, K);
-
+    
     clock_t start, stop;
     start = clock();
     for (int i = 0; i < loops; ++i) {
-        cblas_dsyrk(CblasColMajor, CblasLower, CblasNoTrans, K, N, alpha, a, K, beta, d, K);
+        cblas_dsyrk(CblasColMajor, CblasLower, CblasNoTrans, N, K, alpha, a, M, beta, c, N);
         cblas_dgemm(CblasColMajor, CblasNoTrans, CblasNoTrans, M, N, K, alpha, a, M, b, K, beta, c, M);
     }
     stop = clock();
@@ -109,7 +106,6 @@ int cpu_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
     delete_double_matrix(a);
     delete_double_matrix(b);
     delete_double_matrix(c);
-    delete_double_matrix(d);
 
     return 0;
 }

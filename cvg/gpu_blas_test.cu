@@ -232,35 +232,32 @@ int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta
 
 int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
 {
-    printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
-    assert(K > N);
+    printf("NVIDIA CUBLAS ssyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
+    assert(M == N);
 
     list_cuda_devices();
 
     cublasHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasCreate(&handle), "cublasCreate fail");
 
-    float *a, *b, *c, *d;
+    float *a, *b, *c;
     new_float_matrix(a, M, K);
     new_float_matrix(b, K, N);
     new_float_matrix(c, M, N);
-    new_float_matrix(d, K, K);
 
     // time all the extra stuff for setting up the matrices
     clock_t start, stop;
     start = clock();
-    float *dev_a, *dev_b, *dev_c, *dev_d;
+    float *dev_a, *dev_b, *dev_c;
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_a, M*K*sizeof(*a)));
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_b, K*N*sizeof(*b)));
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_c, M*N*sizeof(*c)));
-    HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_d, K*K*sizeof(*d)));
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(M, K, sizeof(*a), a, M, dev_a, M), "cublasSetMatrix A fail");
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(K, N, sizeof(*b), b, K, dev_b, K), "cublasSetMatrix B fail");
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(M, N, sizeof(*c), c, M, dev_c, M), "cublasSetMatrix C fail");
-    HANDLE_CUBLAS_ERROR(cublasSetMatrix(K, K, sizeof(*d), d, K, dev_d, K), "cublasSetMatrix D fail");
 
     for (int i = 0; i < loops; ++i) {
-        HANDLE_CUBLAS_ERROR(cublasSsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, K, M, &alpha, a, K, &beta, d, K), "Ssyrk fail");
+        HANDLE_CUBLAS_ERROR(cublasSsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, N, K, &alpha, dev_a, M, &beta, dev_c, N), "Ssyrk fail");
         HANDLE_CUBLAS_ERROR(cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, dev_a, M, dev_b, K, &beta, dev_c, M), "Sgemm fail");
     }
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
@@ -271,12 +268,10 @@ int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta
     delete_float_matrix(a);
     delete_float_matrix(b);
     delete_float_matrix(c);
-    delete_float_matrix(d);
 
     cudaFree(dev_a);
     cudaFree(dev_b);
     cudaFree(dev_c);
-    cudaFree(dev_d);
 
     cublasDestroy(handle);
 
@@ -286,35 +281,32 @@ int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta
 
 int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
 {
-    printf("NVIDIA CUBLAS dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
-    assert(K > N);
+    printf("NVIDIA CUBLAS dsyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
+    assert(M == N);
 
     list_cuda_devices();
 
     cublasHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasCreate(&handle), "cublasCreate fail");
 
-    double *a, *b, *c, *d;
+    double *a, *b, *c;
     new_double_matrix(a, M, K);
     new_double_matrix(b, K, N);
     new_double_matrix(c, M, N);
-    new_double_matrix(d, K, K);
 
     // time all the extra stuff for setting up the matrices
     clock_t start, stop;
     start = clock();
-    double *dev_a, *dev_b, *dev_c, *dev_d;
+    double *dev_a, *dev_b, *dev_c;
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_a, M*K*sizeof(*a)));
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_b, K*N*sizeof(*b)));
     HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_c, M*N*sizeof(*c)));
-    HANDLE_CUDA_ERROR(cudaMalloc((void**)&dev_d, K*K*sizeof(*d)));
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(M, K, sizeof(*a), a, M, dev_a, M), "cublasSetMatrix A fail");
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(K, N, sizeof(*b), b, K, dev_b, K), "cublasSetMatrix B fail");
     HANDLE_CUBLAS_ERROR(cublasSetMatrix(M, N, sizeof(*c), c, M, dev_c, M), "cublasSetMatrix C fail");
-    HANDLE_CUBLAS_ERROR(cublasSetMatrix(K, K, sizeof(*d), d, K, dev_d, K), "cublasSetMatrix D fail");
 
     for (int i = 0; i < loops; ++i) {
-		HANDLE_CUBLAS_ERROR(cublasDsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, K, M, &alpha, a, K, &beta, d, K), "Dsyrk fail");
+		HANDLE_CUBLAS_ERROR(cublasDsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, N, K, &alpha, dev_a, M, &beta, dev_c, N), "Dsyrk fail");
         HANDLE_CUBLAS_ERROR(cublasDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, dev_a, M, dev_b, K, &beta, dev_c, M), "Dgemm fail");
     }
     HANDLE_CUBLAS_ERROR(cublasGetMatrix(M, N, sizeof(*c), dev_c, M, c, M), "cublasGetMatrix C fail");
@@ -325,12 +317,10 @@ int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double be
     delete_double_matrix(a);
     delete_double_matrix(b);
     delete_double_matrix(c);
-    delete_double_matrix(d);
 
     cudaFree(dev_a);
     cudaFree(dev_b);
     cudaFree(dev_c);
-    cudaFree(dev_d);
 
     cublasDestroy(handle);
 
@@ -340,8 +330,8 @@ int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double be
 
 int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta, int block_dim, int num_gpus, int *gpu_ids)
 {
-    printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
-    assert(K > N);
+    printf("NVIDIA CUBLASXT ssyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
+    assert(M == N);
 
     list_cuda_devices();
 
@@ -352,16 +342,15 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
 
     HANDLE_CUBLAS_ERROR(cublasXtSetBlockDim(handle, block_dim), "cublasXtSetBlockDim fail");
 
-    float *a, *b, *c, *d;
+    float *a, *b, *c;
     new_float_matrix(a, M, K);
     new_float_matrix(b, K, N);
     new_float_matrix(c, M, N);
-    new_float_matrix(d, K, K);
 
     clock_t start, stop;
     start = clock();
     for (int i = 0; i < loops; ++i) {
-        HANDLE_CUBLAS_ERROR(cublasXtSsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, K, N, &alpha, a, K, &beta, d, K), "Ssyrk fail");
+        HANDLE_CUBLAS_ERROR(cublasXtSsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, N, K, &alpha, a, M, &beta, c, N), "Ssyrk fail");
         HANDLE_CUBLAS_ERROR(cublasXtSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, a, M, b, K, &beta, c, M), "Sgemm fail");
     }
     stop = clock();
@@ -371,7 +360,6 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
     delete_float_matrix(a);
     delete_float_matrix(b);
     delete_float_matrix(c);
-    delete_float_matrix(d);
 
     cublasXtDestroy(handle);
 
@@ -381,8 +369,8 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
 
 int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta, int block_dim, int num_gpus, int *gpu_ids)
 {
-    printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
-    assert(K > N);
+    printf("NVIDIA CUBLASXT dsyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
+    assert(M == N);
 
     list_cuda_devices();
 
@@ -393,16 +381,15 @@ int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double 
 
     HANDLE_CUBLAS_ERROR(cublasXtSetBlockDim(handle, block_dim), "cublasXtSetBlockDim fail");
 
-    double *a, *b, *c, *d;
+    double *a, *b, *c;
     new_double_matrix(a, M, K);
     new_double_matrix(b, K, N);
     new_double_matrix(c, M, N);
-    new_double_matrix(d, K, K);
 
     clock_t start, stop;
     start = clock();
     for (int i = 0; i < loops; ++i) {
-        HANDLE_CUBLAS_ERROR(cublasXtDsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, K, N, &alpha, a, K, &beta, d, K), "Dsyrk fail");
+        HANDLE_CUBLAS_ERROR(cublasXtDsyrk(handle, CUBLAS_FILL_MODE_LOWER, CUBLAS_OP_N, N, K, &alpha, a, M, &beta, c, N), "Dsyrk fail");
         HANDLE_CUBLAS_ERROR(cublasXtDgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, M, N, K, &alpha, a, M, b, K, &beta, c, M), "Dgemm fail");
     }
     stop = clock();
@@ -412,7 +399,6 @@ int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double 
     delete_double_matrix(a);
     delete_double_matrix(b);
     delete_double_matrix(c);
-    delete_double_matrix(d);
 
     cublasXtDestroy(handle);
 

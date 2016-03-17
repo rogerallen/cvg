@@ -57,6 +57,8 @@ void pr_array(double *x, int ld)
     printf("...[snip]...\n");
 }
 
+// the total number of floating point operations for a typical *GEMM call 
+// is approximately 2MNK.
 void summarize_sgemm(float *c, int loops, int M, int N, int K, float alpha, float beta, clock_t start, clock_t stop)
 {
     printf("Result:\n");
@@ -67,8 +69,6 @@ void summarize_sgemm(float *c, int loops, int M, int N, int K, float alpha, floa
     printf("SGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
-    // the total number of floating point operations for a typical *GEMM call 
-    // is approximately 2MNK.
     printf("Gigaflops:   %.1f\n", 2.0*M*N*K*loops / 1e9);
     printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
 }
@@ -83,8 +83,6 @@ void summarize_dgemm(double *c, int loops, int M, int N, int K, double alpha, do
     printf("DGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
-    // the total number of floating point operations for a typical *GEMM call 
-    // is approximately 2MNK.
     printf("Gigaflops:   %.1f\n", 2.0*M*N*K*loops / 1e9);
     printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
 }
@@ -96,14 +94,12 @@ void summarize_ssyrkgemm(float *c, int loops, int M, int N, int K, float alpha, 
 
     double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    //FIXMEprintf("DSYRK: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, M, alpha, M, M, beta);
-    printf("FIXME SSYRKGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
+    printf("SSYRKGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, M, alpha, M, N, beta);
+    printf("           [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
-    // the total number of floating point operations for a typical *GEMM call 
-    // is approximately 2MNK.
-    printf("Gigaflops:   %.1f\n", 2.0*M*N*K*loops / 1e9);
-    printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
+    printf("?Gigaflops:   %.1f\n", 4.0*M*N*K*loops / 1e9);
+    printf("?Gigaflops/s: %.1f\n", 4.0*M*N*K*loops / timer_seconds / 1e9);
 }
 
 void summarize_dsyrkgemm(double *c, int loops, int M, int N, int K, double alpha, double beta, clock_t start, clock_t stop)
@@ -113,12 +109,10 @@ void summarize_dsyrkgemm(double *c, int loops, int M, int N, int K, double alpha
 
     double data_bytes = (double)(M*K + K*N + M*N) * sizeof(float);
     double timer_seconds = ((double)(stop - start)) / CLOCKS_PER_SEC;
-    //FIXMEprintf("DSYRK: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, M, alpha, M, M, beta);
-    printf("FIXME DSYRKGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
+    printf("DSYRKGEMM: [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, M, alpha, M, N, beta);
+    printf("         : [%dx%d] * [%dx%d] * %.2f + [%dx%d] * %.2f\n", M, K, K, N, alpha, M, N, beta);
     printf("seconds:     %f\n", timer_seconds);
     printf("Gigabytes:   %.1f\n", data_bytes / 1e9);
-    // the total number of floating point operations for a typical *GEMM call 
-    // is approximately 2MNK.
-    printf("Gigaflops:   %.1f\n", 2.0*M*N*K*loops / 1e9);
-    printf("Gigaflops/s: %.1f\n", 2.0*M*N*K*loops / timer_seconds / 1e9);
+    printf("?Gigaflops:   %.1f\n", 4.0*M*N*K*loops / 1e9);
+    printf("?Gigaflops/s: %.1f\n", 4.0*M*N*K*loops / timer_seconds / 1e9);
 }
