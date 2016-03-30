@@ -8,6 +8,8 @@
 #include "cpu_blas_test.h"
 #include "util.h"
 
+// FIXME -- fix csv_output
+
 void list_cpu_info()
 {
     SYSTEM_INFO siSysInfo;
@@ -28,7 +30,7 @@ void list_cpu_info()
     }
 }
 
-int cpu_sgemm(int loops, int M, int N, int K, float alpha, float beta)
+int cpu_sgemm(int loops, int M, int N, int K, float alpha, float beta, bool csv_output)
 {
     printf("Intel MKL sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n",loops,M,N,K,alpha,beta);
 
@@ -46,21 +48,21 @@ int cpu_sgemm(int loops, int M, int N, int K, float alpha, float beta)
     }
     stop = clock();
 
-    summarize_sgemm(c, loops, M, N, K, alpha, beta, start, stop);
+    summarize_sgemm(c, loops, M, N, K, alpha, beta, start, stop, csv_output);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
     delete_float_matrix(c);
-    
+
     return 0;
 }
 
-int cpu_dgemm(int loops, int M, int N, int K, double alpha, double beta)
+int cpu_dgemm(int loops, int M, int N, int K, double alpha, double beta, bool csv_output)
 {
     printf("Intel MKL dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
 
     list_cpu_info();
-    
+
     double *a, *b, *c;
     new_double_matrix(a, M, K);
     new_double_matrix(b, K, N);
@@ -73,7 +75,7 @@ int cpu_dgemm(int loops, int M, int N, int K, double alpha, double beta)
     }
     stop = clock();
 
-    summarize_dgemm(c, loops, M, N, K, alpha, beta, start, stop);
+    summarize_dgemm(c, loops, M, N, K, alpha, beta, start, stop, csv_output);
 
     delete_double_matrix(a);
     delete_double_matrix(b);
@@ -82,13 +84,13 @@ int cpu_dgemm(int loops, int M, int N, int K, double alpha, double beta)
     return 0;
 }
 
-int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
+int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta, bool csv_output)
 {
     printf("Intel MKL ssyrkgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
     assert(M == N);
 
     list_cpu_info();
-    
+
     float *a, *b, *c;
     new_float_matrix(a, M, K);
     new_float_matrix(b, K, N);
@@ -102,7 +104,7 @@ int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
     }
     stop = clock();
 
-    summarize_ssyrkgemm(c, loops, M, N, K, alpha, beta, start, stop);
+    summarize_ssyrkgemm(c, loops, M, N, K, alpha, beta, start, stop, csv_output);
 
     delete_float_matrix(a);
     delete_float_matrix(b);
@@ -111,18 +113,18 @@ int cpu_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta)
     return 0;
 }
 
-int cpu_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
+int cpu_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta, bool csv_output)
 {
     printf("Intel MKL dsyrkgemm: loops=%d M=%d N=%d K=%d\n", loops, M, N, K);
     assert(M == N);
 
     list_cpu_info();
-    
+
     double *a, *b, *c;
     new_double_matrix(a, M, K);
     new_double_matrix(b, K, N);
     new_double_matrix(c, M, N);
-    
+
     clock_t start, stop;
     start = clock();
     for (int i = 0; i < loops; ++i) {
@@ -131,7 +133,7 @@ int cpu_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
     }
     stop = clock();
 
-    summarize_dsyrkgemm(c, loops, M, N, K, alpha, beta, start, stop);
+    summarize_dsyrkgemm(c, loops, M, N, K, alpha, beta, start, stop, csv_output);
 
     delete_double_matrix(a);
     delete_double_matrix(b);
@@ -139,5 +141,3 @@ int cpu_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta)
 
     return 0;
 }
-
-
