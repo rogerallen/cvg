@@ -1,10 +1,6 @@
 #include <assert.h>
 #include <time.h>
 #include <stdio.h>
-// FIXME confirm this is needed
-#ifndef NO_WINDOWS
-#include <windows.h>
-#endif
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <cublasXt.h>
@@ -55,7 +51,6 @@ int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta, bo
 {
     if(!csv_output) {
         printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
-
         list_cuda_devices();
     } else {
         printf("NVIDIA CUBLAS sgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
@@ -118,7 +113,6 @@ int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta, 
 {
     if(!csv_output) {
         printf("NVIDIA CUBLAS dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
-
         list_cuda_devices();
     } else {
         printf("NVIDIA CUBLAS dgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
@@ -181,7 +175,6 @@ int gpu_cublasxt_sgemm(int loops, int M, int N, int K, float alpha, float beta, 
 {
     if(!csv_output) {
         printf("NVIDIA CUBLASXT sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
-
         list_cuda_devices();
     } else {
         printf("NVIDIA CUBLASXT sgemm,%d,%d,%d,%d,%f,%f,%d,%d",loops, M, N, K, alpha, beta, block_dim, num_gpus);
@@ -225,7 +218,6 @@ int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta
 {
     if(!csv_output) {
         printf("NVIDIA CUBLASXT dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
-
         list_cuda_devices();
     } else {
         printf("NVIDIA CUBLASXT dgemm,%d,%d,%d,%d,%f,%f,%d,%d",loops, M, N, K, alpha, beta, block_dim, num_gpus);
@@ -269,7 +261,6 @@ int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta
 {
     if(!csv_output) {
         printf("NVIDIA CUBLAS ssyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
-
         list_cuda_devices();
     } else {
         printf("NVIDIA CUBLAS ssyrkgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
@@ -325,7 +316,6 @@ int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double be
 {
     if(!csv_output) {
         printf("NVIDIA CUBLAS dsyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
-
         list_cuda_devices();
     } else {
         printf("NVIDIA CUBLAS dsyrkgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
@@ -381,7 +371,6 @@ int gpu_cublasxt_ssyrkgemm(int loops, int M, int N, int K, float alpha, float be
 {
     if(!csv_output) {
         printf("NVIDIA CUBLASXT ssyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
-
         list_cuda_devices();
     } else {
          printf("NVIDIA CUBLASXT ssyrkgemm,%d,%d,%d,%d,%f,%f,%d,%d",loops, M, N, K, alpha, beta, block_dim, num_gpus);
@@ -427,7 +416,6 @@ int gpu_cublasxt_dsyrkgemm(int loops, int M, int N, int K, double alpha, double 
 {
     if(!csv_output) {
         printf("NVIDIA CUBLASXT dsyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f block_dim=%d num_gpus=%d\n", loops, M, N, K, alpha, beta, block_dim, num_gpus);
-
         list_cuda_devices();
     } else {
        printf("NVIDIA CUBLASXT dsyrkgemm,%d,%d,%d,%d,%f,%f,%d,%d",loops, M, N, K, alpha, beta, block_dim, num_gpus);
