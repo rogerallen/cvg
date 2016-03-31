@@ -47,14 +47,17 @@ void list_cuda_devices()
     }
 }
 
-int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta, bool csv_output)
+int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta, int num_gpus, int *gpu_ids, bool csv_output)
 {
     if(!csv_output) {
-        printf("NVIDIA CUBLAS sgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS sgemm: gpu=%d loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", gpu_ids[0], loops, M, N, K, alpha, beta);
         list_cuda_devices();
     } else {
-        printf("NVIDIA CUBLAS sgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS sgemm,%d,%d,%d,%d,%d,%f,%f", gpu_ids[0], loops, M, N, K, alpha, beta);
     }
+
+    assert(num_gpus == 1);
+    cudaSetDevice(gpu_ids[0]);
 
     cublasHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasCreate(&handle),"cublasCreate fail");
@@ -109,14 +112,17 @@ int gpu_cublas_sgemm(int loops, int M, int N, int K, float alpha, float beta, bo
 
 }
 
-int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta, bool csv_output)
+int gpu_cublas_dgemm(int loops, int M, int N, int K, double alpha, double beta, int num_gpus, int *gpu_ids, bool csv_output)
 {
     if(!csv_output) {
-        printf("NVIDIA CUBLAS dgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS dgemm: gpu=%d loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", gpu_ids[0], loops, M, N, K, alpha, beta);
         list_cuda_devices();
     } else {
-        printf("NVIDIA CUBLAS dgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS dgemm,%d,%d,%d,%d,%d,%f,%f", gpu_ids[0], loops, M, N, K, alpha, beta);
     }
+
+    assert(num_gpus == 1);
+    cudaSetDevice(gpu_ids[0]);
 
     cublasHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasCreate(&handle), "cublasCreate fail");
@@ -257,15 +263,18 @@ int gpu_cublasxt_dgemm(int loops, int M, int N, int K, double alpha, double beta
 
 }
 
-int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta, bool csv_output)
+int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta, int num_gpus, int *gpu_ids, bool csv_output)
 {
     if(!csv_output) {
-        printf("NVIDIA CUBLAS ssyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS ssyrkgemm: gpu=%d loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", gpu_ids[0], loops, M, N, K, alpha, beta);
         list_cuda_devices();
     } else {
-        printf("NVIDIA CUBLAS ssyrkgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS ssyrkgemm,%d,%d,%d,%d,%d,%f,%f",gpu_ids[0],loops, M, N, K, alpha, beta);
     }
     assert(M == N);
+
+    assert(num_gpus == 1);
+    cudaSetDevice(gpu_ids[0]);
 
     cublasHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasCreate(&handle), "cublasCreate fail");
@@ -312,15 +321,18 @@ int gpu_cublas_ssyrkgemm(int loops, int M, int N, int K, float alpha, float beta
 
 }
 
-int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta, bool csv_output)
+int gpu_cublas_dsyrkgemm(int loops, int M, int N, int K, double alpha, double beta, int num_gpus, int *gpu_ids, bool csv_output)
 {
     if(!csv_output) {
-        printf("NVIDIA CUBLAS dsyrkgemm: loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS dsyrkgemm: gpu=%d loops=%d M=%d N=%d K=%d alpha=%f beta=%f\n", gpu_ids[0], loops, M, N, K, alpha, beta);
         list_cuda_devices();
     } else {
-        printf("NVIDIA CUBLAS dsyrkgemm,%d,%d,%d,%d,%f,%f",loops, M, N, K, alpha, beta);
+        printf("NVIDIA CUBLAS dsyrkgemm,%d,%d,%d,%d,%d,%f,%f",gpu_ids[0], loops, M, N, K, alpha, beta);
     }
     assert(M == N);
+
+    assert(num_gpus == 1);
+    cudaSetDevice(gpu_ids[0]);
 
     cublasHandle_t handle;
     HANDLE_CUBLAS_ERROR(cublasCreate(&handle), "cublasCreate fail");

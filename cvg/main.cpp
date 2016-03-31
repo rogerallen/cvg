@@ -110,9 +110,9 @@ int main(int argc, char **argv) {
     } else
 #endif
     if ((sel == 'g') && (test == 'g') && (prec == 's')) {
-        rc = gpu_cublas_sgemm(loops, m, n, k, (float)alpha, (float)beta, csv_output);
+        rc = gpu_cublas_sgemm(loops, m, n, k, (float)alpha, (float)beta, num_gpus, gpu_ids, csv_output);
     } else if ((sel == 'g') && (test == 'g') && (prec == 'd')) {
-        rc = gpu_cublas_dgemm(loops, m, n, k, alpha, beta, csv_output);
+        rc = gpu_cublas_dgemm(loops, m, n, k, alpha, beta, num_gpus, gpu_ids, csv_output);
     } else if ((sel == 'x') && (test == 'g') && (prec == 's')) {
         rc = gpu_cublasxt_sgemm(loops, m, n, k, (float)alpha, (float)beta, block, num_gpus, gpu_ids, csv_output);
     } else if ((sel == 'x') && (test == 'g') && (prec == 'd')) {
@@ -124,9 +124,9 @@ int main(int argc, char **argv) {
         rc = cpu_dsyrkgemm(loops, m, n, k, alpha, beta, csv_output);
 #endif
     } else if ((sel == 'g') && (test == 's') && (prec == 's')) {
-        rc = gpu_cublas_ssyrkgemm(loops, m, n, k, (float)alpha, (float)beta, csv_output);
+        rc = gpu_cublas_ssyrkgemm(loops, m, n, k, (float)alpha, (float)beta, num_gpus, gpu_ids, csv_output);
     } else if ((sel == 'g') && (test == 's') && (prec == 'd')) {
-        rc = gpu_cublas_dsyrkgemm(loops, m, n, k, alpha, beta, csv_output);
+        rc = gpu_cublas_dsyrkgemm(loops, m, n, k, alpha, beta, num_gpus, gpu_ids, csv_output);
     } else if ((sel == 'x') && (test == 's') && (prec == 's')) {
         rc = gpu_cublasxt_ssyrkgemm(loops, m, n, k, (float)alpha, (float)beta, block, num_gpus, gpu_ids, csv_output);
     } else if ((sel == 'x') && (test == 's') && (prec == 'd')) {
