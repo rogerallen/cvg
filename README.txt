@@ -8,6 +8,9 @@ I wanted a simple way to compare CPU vs. GPU SGEMM performance using Intel MKL, 
 It started out simple, but like so many things, got a bit more complex over time...  Since this is for developers,
 please just read the code to see what it is doing.
 
+NOTE: Adjust the output for your GPU.  Set "cvg -> Properties -> Configuration Properties -> CUDA C/C++ -> Device -> Code Generation" 
+to the architecture & feature list for your target GPU.  (e.g. compute_61,sm_61 for the latest Pascal architectures like GeForce GTX 1070)
+
 NOTE: built assuming Intel MKL V11.3
 
 Example usage & output:
@@ -53,13 +56,13 @@ Gigaflops/s: 354.5
 GPU CUBLAS SGEMM:
 ================================================================================
 
-> x64/Debug/cvg.exe -s g -l 4 -m 6400 -n 6400 -k 26000
-NVIDIA CUBLAS sgemm: loops=4 M=6400 N=6400 K=26000 alpha=1.110000 beta=0.910000
+> x64/Release/cvg.exe -s g -l 4 -m 6400 -n 6400 -k 26000
+NVIDIA CUBLAS sgemm: gpu=0 loops=4 M=6400 N=6400 K=26000 alpha=1.110000 beta=0.910000
 Device Number: 0
-  Device name: GeForce GTX 960
-  Memory Clock Rate (KHz): 3505000
-  Memory Bus Width (bits): 128
-  Peak Memory Bandwidth (GB/s): 112.160000
+  Device name: GeForce GTX 1070
+  Memory Clock Rate (KHz): 4004000
+  Memory Bus Width (bits): 256
+  Peak Memory Bandwidth (GB/s): 256.256000
 
 Result:
 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 ...[snip]...
@@ -72,10 +75,11 @@ Result:
 0.00000 22672.87500 20155.42578 16626.54688 22171.04492 12596.54590 18140.14844 28720.79492 ...[snip]...
 ...[snip]...
 SGEMM: [6400x26000] * [26000x6400] * 1.11 + [6400x6400] * 0.91
-seconds:     4.842000
-Gigabytes:   1.5
+seconds:     1.876000
+Gigabytes:   6.0
+Gigabytes/s: 3.2
 Gigaflops:   8519.7
-Gigaflops/s: 1759.5
+Gigaflops/s: 4541.4
 ON DEVICE TIME:Result:
 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 ...[snip]...
 0.00000 28720.24805 22170.63477 22672.59961 20156.65430 12596.54688 20155.56250 22672.87500 ...[snip]...
@@ -87,22 +91,23 @@ ON DEVICE TIME:Result:
 0.00000 22672.87500 20155.42578 16626.54688 22171.04492 12596.54590 18140.14844 28720.79492 ...[snip]...
 ...[snip]...
 SGEMM: [6400x26000] * [26000x6400] * 1.11 + [6400x6400] * 0.91
-seconds:     3.328000
-Gigabytes:   1.5
+seconds:     1.438000
+Gigabytes:   6.0
+Gigabytes/s: 4.2
 Gigaflops:   8519.7
-Gigaflops/s: 2560.0
+Gigaflops/s: 5924.7
 
 ================================================================================
 GPU CUBLASXT SGEMM
 ================================================================================
 
-> x64/Debug/cvg.exe -s x -l 4 -m 6400 -n 6400 -k 26000 -b 8192
-NVIDIA CUBLASXT sgemm: loops=4 M=6400 N=6400 K=26000 block_dim=8192
+> x64/Release/cvg.exe -s x -l 4 -m 6400 -n 6400 -k 26000 -b 8192
+NVIDIA CUBLASXT sgemm: loops=4 M=6400 N=6400 K=26000 alpha=1.110000 beta=0.910000 block_dim=8192 num_gpus=1
 Device Number: 0
-  Device name: GeForce GTX 960
-  Memory Clock Rate (KHz): 3505000
-  Memory Bus Width (bits): 128
-  Peak Memory Bandwidth (GB/s): 112.160000
+  Device name: GeForce GTX 1070
+  Memory Clock Rate (KHz): 4004000
+  Memory Bus Width (bits): 256
+  Peak Memory Bandwidth (GB/s): 256.256000
 
 Result:
 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 0.00000 ...[snip]...
@@ -114,8 +119,9 @@ Result:
 0.00000 20154.59180 20153.19922 22169.67188 16123.07813 10076.96289 24185.58008 18138.39063 ...[snip]...
 0.00000 22673.30469 20154.45313 16626.87891 22169.67383 12596.54590 18138.39063 28720.43750 ...[snip]...
 ...[snip]...
-SGEMM: [6400x26000] * [26000x6400] + [6400x6400]
-seconds:     5.296000
-Gigabytes:   1.5
+SGEMM: [6400x26000] * [26000x6400] * 1.11 + [6400x6400] * 0.91
+seconds:     3.247000
+Gigabytes:   6.0
+Gigabytes/s: 1.8
 Gigaflops:   8519.7
-Gigaflops/s: 1608.7
+Gigaflops/s: 2623.9

@@ -1,21 +1,21 @@
 #
 # run like so:
-#   env LD_LIBRARY_PATH=/usr/local/cuda-7.5/lib64:$LD_LIBRARY_PATH ./bin/cvg -h
+#   env LD_LIBRARY_PATH=/usr/local/cuda-8.0/lib64:$LD_LIBRARY_PATH ./bin/cvg -h
 #
-CUDA_HOME = /usr/local/cuda-7.5
+CUDA_HOME = /usr/local/cuda-8.0
 NVCC = $(CUDA_HOME)/bin/nvcc
+# FIXME find Intel MKL libraries for linux
 DEFINES = -DNO_CPU_BLAS -DNO_WINDOWS
+GENCODE = -gencode=arch=compute_61,code=\"sm_61,compute_61\"
 
 bin/cvg: cvg/main.o cvg/util.o cvg/gpu_blas_test.o
 	@mkdir -p bin
 	$(NVCC) $^ -o $@ -lcudart -lcublas
 
 # NVCC seems to need C++11, but host compiler needs C++0x
-# TRYME: -gencode=arch=compute_20,code=\"sm_20,compute_20\"
 cvg/gpu_blas_test.o: %.o : %.cu %.h
-	$(NVCC) $(DEFINES) -std=c++11 -c $< -o $@
+	$(NVCC) $(DEFINES) $(GENCODE) -std=c++11 -c $< -o $@
 
-# FIXME find Intel MKL libraries for linux
 #cpu_blas_test.o: %.o : %.cpp %.h
 cvg/util.o: %.o : %.cpp %.h
 cvg/main.o: %.o : %.cpp
